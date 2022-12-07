@@ -33,32 +33,52 @@ function App() {
   } );
 
   const [countries, setCountries] = useState([])
+  const [search, setSearch] = useState("")
+  const [filterdNames, setFilterdNames] = useState([])
 
 
   useEffect(()=> {
 
-    fetchCountries()
-
-
+    const url = "https://restcountries.com/v3.1/all";
+    fetch(url).then(res => res.json()).then(data => {
+      const countryNames = data.map((country) => {
+        return country.name.common;
+      })
+      setFilterdNames(countryNames)
+      setCountries(countryNames)
+    })
   },[])
 
 
-  const fetchCountries = () => {
+  const handleSubmit = (event) => {
+    event.preventDefault()
+  }
 
-    const url = "https://restcountries.com/v3.1/all";
-    fetch(url).then(res => res.json()).then(data => setCountries(data))
-
+  const handleChange = (event) => {
+    event.preventDefault();
+    setSearch(event.target.value);
+    filter(event.target.value);
 
   }
 
-  const handleChange()
+  const filter = (search) => {
+    const lowerSearch = search.toLowerCase();
+    const finalFiltered = countries.filter((name) => {
+      return name.toLowerCase().indexOf(lowerSearch) != -1;
+    });
+    setFilterdNames(finalFiltered);
+  }
+
 
   return (
     <div>
       <div>
-        <input type="text" value={handleChange}></input>
-        <CountrySearch countries={countries}></CountrySearch>
-
+      <form onSubmit={handleSubmit}>
+        <input value={search} onChange={handleChange}></input>
+      </form>
+      <ul>
+        <CountrySearch filterdNames={filterdNames} />
+      </ul>
       </div>
       <div>
           <ul>
